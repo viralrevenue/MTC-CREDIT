@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Degree 2: The Core Bone Structure</title>
+    <style>
+      body {
+        background: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: #111;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      }
+      input,
+      button {
+        padding: 12px;
+        font-size: 16px;
+        margin: 10px 5px;
+        border-radius: 5px;
+        border: none;
+      }
+      input {
+        width: 70%;
+        background: #222;
+        color: white;
+      }
+      button {
+        background: #ffd700;
+        color: #000;
+        cursor: pointer;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        background: #222;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 5px;
+        text-align: left;
+      }
+      .delete-btn {
+        background: red;
+        color: white;
+        margin-left: 10px;
+        padding: 6px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .chat-box {
+        max-height: 300px;
+        overflow-y: auto;
+        background: #222;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: left;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🛡️ Degree 2: The Core Bone Structure</h1>
+
+      <!-- 💬 Live Chat -->
+      <h2>💬 Core Chat Room</h2>
+      <div class="chat-box" id="chatBox"></div>
+      <input type="text" id="chatName" placeholder="Your name (optional)" />
+      <input type="text" id="chatInput" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+
+      <!-- 💎 Premium Code List -->
+      <h2>Premium Credit List</h2>
+      <ul id="creditList"></ul>
+
+      <h3>Add New Super Aweh Code</h3>
+      <input
+        type="text"
+        id="newCode"
+        placeholder="e.g. Super Aweh - 84838282828"
+      />
+      <button onclick="addCode()">Add</button>
+    </div>
+
+    <!-- 🔌 Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      // Load chat history on connection
+      socket.emit("loadChatHistory");
+
+      socket.on("chatHistory", (messages) => {
+        const chatBox = document.getElementById("chatBox");
+        chatBox.innerHTML = "";
+        messages.slice(-50).forEach((msg) => {
+          appendMessage(msg);
+        });
+      });
+
+      socket.on("newChatMessage", (msg) => {
+        appendMessage(msg);
+      });
+
+      function appendMessage(msg) {
+        const chatBox = document.getElementById("chatBox");
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${msg.name || "Anonymous"}</strong>: ${
+          msg.text
+        } <span style="font-size:12px; color:#aaa; float:right;">${
+          msg.time
+        }</span>`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function sendMessage() {
+        const name = document.getElementById("chatName").value.trim();
+        const text = document.getElementById("chatInput").value.trim();
+        if (!text) return;
+
+        const now = new Date();
+        const msgObj = {
+          name: name || "Anonymous",
+          text: text,
+          time: now.toLocaleTimeString(),
+        };
+        socket.emit("sendChatMessage", msgObj);
+        document.getElementById("chatInput").value = "";
+      }
+    </script>
+
+    <!-- 🔧 Code Management (REST) -->
+    <script>
+      // Load codes
+      function loadCodes() {
+        fetch("/api/degree2-codes")
+          .then((res) => res.json())
+          .then((data) => {
+            const list = document.getElementById("creditList");
+            list.innerHTML = "";
+            data.forEach((code, index) => {
+              const li = document.createElement("li");
+              li.innerHTML = `${code} <button class="delete-btn" onclick="deleteCode(${index})">Mark as Used</button>`;
+              list.appendChild(li);
+            });
+          });
+      }
+
+      // Add new code
+      function addCode() {
+        const input = document.getElementById("newCode");
+        const code = input.value.trim();
+        if (!code) return;
+
+        fetch("/api/degree2-codes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        }).then(() => {
+          input.value = "";
+          loadCodes();
+        });
+      }
+
+      // Delete code
+      function deleteCode(index) {
+        fetch(`/api/degree2-codes/${index}`, { method: "DELETE" }).then(() =>
+          loadCodes()
+        );
+      }
+
+      window.onload = loadCodes;
+    </script>
+  </body>
+</html>

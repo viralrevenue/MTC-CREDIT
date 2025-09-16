@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MTC Credit Codes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #0057a0;
+      }
+      input,
+      button {
+        padding: 10px;
+        margin: 10px 5px;
+        font-size: 16px;
+      }
+      input {
+        width: 70%;
+      }
+      button {
+        background: #0057a0;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #003f70;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      li {
+        padding: 10px;
+        background: #e8f0fe;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .delete-btn {
+        background: red;
+        color: white;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Available MTC Credit Codes</h1>
+
+      <ul id="creditList">
+        <!-- Codes will be loaded here -->
+      </ul>
+
+      <h3>Add New Credit Code</h3>
+      <input
+        type="text"
+        id="newCode"
+        placeholder="e.g. 10 airtime - 548752343457"
+      />
+      <button onclick="addCode()">Add</button>
+    </div>
+
+    <script>
+      // Load existing codes on page load
+      window.onload = function () {
+        fetch("/api/codes")
+          .then((res) => res.json())
+          .then((data) => {
+            const list = document.getElementById("creditList");
+            list.innerHTML = "";
+            data.forEach((code, index) => {
+              const li = document.createElement("li");
+              li.innerHTML = `${code} <button class="delete-btn" onclick="deleteCode(${index})">Mark as Used</button>`;
+              list.appendChild(li);
+            });
+          });
+      };
+
+      // Add a new code
+      function addCode() {
+        const input = document.getElementById("newCode");
+        const code = input.value.trim();
+        if (!code) return;
+
+        fetch("/api/codes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        }).then(() => {
+          input.value = "";
+          window.location.reload();
+        });
+      }
+
+      // Delete a used code
+      function deleteCode(index) {
+        fetch(`/api/codes/${index}`, {
+          method: "DELETE",
+        }).then(() => window.location.reload());
+      }
+    </script>
+  </body>
+</html>

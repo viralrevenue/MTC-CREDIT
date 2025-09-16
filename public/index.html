@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MTC Credit Sharing App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #0073e6; /* Blue background */
+        padding: 20px;
+        color: white; /* White text */
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1); /* Light transparent white */
+        padding: 30px;
+        margin: auto;
+        max-width: 500px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+      input {
+        padding: 10px;
+        width: 80%;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: none;
+      }
+      button {
+        padding: 10px 20px;
+        background: white;
+        color: #0057a0; /* Blue text on white button */
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      button:hover {
+        background: #e0e0e0;
+      }
+      .error {
+        color: #ffcccc;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Degree 1: The of iron Allegiance</h1>
+      <p>
+        <em>"Shared Credit. Built on Trust and Secret brotherhood."</em>
+      </p>
+      <p>
+        This is a <strong>trusted community platform</strong> for trusted
+        Members to share and use MTC credit codes. No interest. No stress. Just
+        trust. Pay back with zero interest. One code at a time!!! <br /><br />
+        You can <strong>add your own available credit</strong> to grow the
+        community pool and help others. Together, we build a trusted network of
+        giving and receiving. Every act of repayment strengthens the unseen bond
+        between strangers.
+      </p>
+
+      <p>Enter secret code to continue:</p>
+      <input
+        type="password"
+        id="entryCode"
+        placeholder="Enter secret code..."
+      />
+      <br />
+      <button onclick="checkCode()">Enter</button>
+      <p class="error" id="error">Wrong code. Try again.</p>
+    </div>
+
+    <script>
+      function checkCode() {
+        const pin = document.getElementById("entryCode").value;
+
+        fetch("/check-pin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ pin }),
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error("Wrong code");
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              window.location.href = "home.html"; // We'll build this page later
+            }
+          })
+          .catch(() => {
+            document.getElementById("error").style.display = "block";
+          });
+      }
+    </script>
+    <p style="margin-top: 30px">
+      Want to unlock <strong>Degree 2: The Core Bone Structure</strong>?
+      <a href="request-access.html" style="color: #ffd700">Request Access</a>
+    </p>
+  </body>
+</html>

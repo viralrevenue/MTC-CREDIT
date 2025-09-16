@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Degree 2 Access – The Core Bone Structure</title>
+    <style>
+      body {
+        background: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: #111;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+      }
+
+      h1,
+      h2 {
+        color: #ffd700;
+      }
+
+      input,
+      button {
+        padding: 12px;
+        margin: 10px 0;
+        width: 90%;
+        border-radius: 5px;
+        border: none;
+        font-size: 16px;
+      }
+
+      input {
+        background: #333;
+        color: white;
+      }
+
+      button {
+        background: #ffd700;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .fixtures {
+        margin-top: 30px;
+        text-align: left;
+        background: #222;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      .fixtures ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .fixtures li {
+        margin: 12px 0;
+        font-size: 16px;
+      }
+
+      .emoji {
+        margin-right: 10px;
+      }
+
+      .thank-you {
+        color: #0f0;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      .code-section {
+        margin-top: 30px;
+        background: #222;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      #error {
+        color: red;
+        margin-top: 10px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Degree 2: The Core Bone Structure</h1>
+      <p><strong>Premium Access for Trusted Members Only</strong></p>
+      <p>💵 <strong>Price: N$20.00</strong></p>
+      <p>Send via EFT or Ewallet – we will contact you</p>
+
+      <!-- Number form -->
+      <div id="formSection">
+        <input
+          type="text"
+          id="userNumber"
+          placeholder="📞 Enter your phone number"
+        />
+        <button onclick="submitNumber()">Request Access</button>
+      </div>
+
+      <!-- Thank you message -->
+      <div id="thanksMessage" class="thank-you" style="display: none">
+        ✅ Thank you. We'll contact you soon via SMS or WhatsApp.
+      </div>
+
+      <!-- Teaser / Feature section -->
+      <div class="fixtures">
+        <h2>🔥 What You Unlock With Degree 2</h2>
+        <ul>
+          <li>
+            <span class="emoji">💰</span> Super Aweh Airtime Pool (Exclusive
+            deals)
+          </li>
+          <li>
+            <span class="emoji">💬</span> Private Chat Room (Group SMS Style)
+          </li>
+          <li>
+            <span class="emoji">📅</span> Meeting Dates and Brotherhood Info
+          </li>
+          <li><span class="emoji">🧠</span> Core Discussions – No outsiders</li>
+          <li><span class="emoji">🔐</span> Invite-only access via code</li>
+          <li>
+            <span class="emoji">🎨</span> Clean dark interface, white text
+            (premium feel)
+          </li>
+        </ul>
+        <p style="margin-top: 20px; font-style: italic; color: #aaa">
+          After payment, you’ll receive the <strong></strong> code to enter
+          Degree 2.
+        </p>
+      </div>
+
+      <!-- Masterguard code input -->
+      <div class="code-section">
+        <h2>🔐 Already Have the Code?</h2>
+        <p>Enter it below to unlock Degree 2:</p>
+        <input
+          type="password"
+          id="pinInput"
+          placeholder="Enter MASTERGUARD code"
+        />
+        <br />
+        <button onclick="checkPin()">Unlock Degree 2</button>
+        <p id="error">❌ Incorrect code. Please try again.</p>
+      </div>
+    </div>
+
+    <script>
+      function submitNumber() {
+        const number = document.getElementById("userNumber").value.trim();
+        if (!number) {
+          alert("Please enter your phone number.");
+          return;
+        }
+
+        // For now, just log the number to browser console
+        console.log("Degree 2 Access Request:", number);
+
+        document.getElementById("formSection").style.display = "none";
+        document.getElementById("thanksMessage").style.display = "block";
+      }
+
+      function checkPin() {
+        const pin = document.getElementById("pinInput").value.trim();
+
+        fetch("/check-premium-pin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin }),
+        }).then((res) => {
+          if (res.ok) {
+            window.location.href = "/degree2.html";
+          } else {
+            document.getElementById("error").style.display = "block";
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
