@@ -134,7 +134,7 @@
           </li>
         </ul>
         <p style="margin-top: 20px; font-style: italic; color: #aaa">
-          After payment, you’ll receive the <strong></strong> code to enter
+          After payment, you’ll receive the <strong>code</strong> to enter
           Degree 2.
         </p>
       </div>
@@ -158,27 +158,44 @@
           return;
         }
 
-        // For now, just log the number to browser console
-        console.log("Degree 2 Access Request:", number);
-
-        document.getElementById("formSection").style.display = "none";
-        document.getElementById("thanksMessage").style.display = "block";
+        fetch("https://mtc-credit.onrender.com/api/degree2-requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ number }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              document.getElementById("formSection").style.display = "none";
+              document.getElementById("thanksMessage").style.display = "block";
+            } else {
+              alert("❌ Error saving number. Please try again.");
+            }
+          })
+          .catch((err) => {
+            console.error("Network error:", err);
+            alert("❌ Network issue. Please try again later.");
+          });
       }
 
       function checkPin() {
         const pin = document.getElementById("pinInput").value.trim();
 
-        fetch("/check-premium-pin", {
+        fetch("https://mtc-credit.onrender.com/check-premium-pin", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ pin }),
-        }).then((res) => {
-          if (res.ok) {
-            window.location.href = "/degree2.html";
-          } else {
-            document.getElementById("error").style.display = "block";
-          }
-        });
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.href = "/degree2.html";
+            } else {
+              document.getElementById("error").style.display = "block";
+            }
+          })
+          .catch((err) => {
+            console.error("PIN check error:", err);
+            alert("❌ Could not verify code.");
+          });
       }
     </script>
   </body>

@@ -12,23 +12,24 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// 📁 File paths
+/* -------------------------- 📁 File Paths -------------------------- */
 const FILE_PATH = "./credits.json";
 const DEGREE2_FILE = "./degree2-codes.json";
 const DEGREE2_CHAT_FILE = "./degree2-chat.json";
+const DEGREE2_REQUESTS_FILE = "./degree2-requests.json";
 
-// 🔐 Secret PINs
+/* -------------------------- 🔐 Secret PINs -------------------------- */
 const FREE_PIN = "FREEMASON";
 const PREMIUM_PIN = "MASTERGUARD";
 
-// 🛠 Middleware
+/* -------------------------- 🛠 Middleware -------------------------- */
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 /* -------------------------- 🔐 PIN Verification -------------------------- */
 app.post("/check-pin", (req, res) => {
   const { pin } = req.body;
-  if (pin.trim().toUpperCase() === FREE_PIN) {
+  if (pin?.trim().toUpperCase() === FREE_PIN) {
     res.json({ success: true });
   } else {
     res.status(401).json({ success: false });
@@ -37,7 +38,7 @@ app.post("/check-pin", (req, res) => {
 
 app.post("/check-premium-pin", (req, res) => {
   const { pin } = req.body;
-  if (pin.trim().toUpperCase() === PREMIUM_PIN) {
+  if (pin?.trim().toUpperCase() === PREMIUM_PIN) {
     res.json({ success: true });
   } else {
     res.status(401).json({ success: false });
@@ -47,7 +48,7 @@ app.post("/check-premium-pin", (req, res) => {
 /* -------------------------- 📂 Utilities -------------------------- */
 function loadJSON(filePath) {
   try {
-    const data = fs.readFileSync(filePath);
+    const data = fs.readFileSync(filePath, "utf8");
     return JSON.parse(data);
   } catch (err) {
     return [];
@@ -58,7 +59,7 @@ function saveJSON(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
-/* -------------------------- 📦 Free Tier Routes -------------------------- */
+/* -------------------------- 🧾 Free Tier Routes -------------------------- */
 app.get("/api/codes", (req, res) => {
   const codes = loadJSON(FILE_PATH);
   res.json(codes);
@@ -66,14 +67,12 @@ app.get("/api/codes", (req, res) => {
 
 app.post("/api/codes", (req, res) => {
   const { code } = req.body;
-  if (code) {
-    const codes = loadJSON(FILE_PATH);
-    codes.push(code);
-    saveJSON(FILE_PATH, codes);
-    res.status(201).json({ success: true });
-  } else {
-    res.status(400).json({ success: false });
-  }
+  if (!code) return res.status(400).json({ success: false });
+
+  const codes = loadJSON(FILE_PATH);
+  codes.push(code);
+  saveJSON(FILE_PATH, codes);
+  res.status(201).json({ success: true });
 });
 
 app.delete("/api/codes/:index", (req, res) => {
@@ -88,9 +87,22 @@ app.delete("/api/codes/:index", (req, res) => {
   }
 });
 
-/* -------------------------- 💎 Premium Tier (Degree 2) -------------------------- */
+/* -------------------------- 💎 Degree 2 Premium Routes -------------------------- */
 
-// Degree 2 Codes
+// ✅ Save phone number requests
+app.post("/api/degree2-requests", (req, res) => {
+  const { number } = req.body;
+  if (!number)
+    return res.status(400).json({ success: false, error: "Missing number" });
+
+  const requests = loadJSON(DEGREE2_REQUESTS_FILE);
+  requests.push({ number, time: new Date().toLocaleString() });
+  saveJSON(DEGREE2_REQUESTS_FILE, requests);
+
+  res.status(201).json({ success: true });
+});
+
+// ✅ Degree 2 Codes
 app.get("/api/degree2-codes", (req, res) => {
   const codes = loadJSON(DEGREE2_FILE);
   res.json(codes);
@@ -98,14 +110,13 @@ app.get("/api/degree2-codes", (req, res) => {
 
 app.post("/api/degree2-codes", (req, res) => {
   const { code } = req.body;
-  if (code) {
-    const codes = loadJSON(DEGREE2_FILE);
-    codes.push(code);
-    saveJSON(DEGREE2_FILE, codes);
-    res.status(201).json({ success: true });
-  } else {
-    res.status(400).json({ success: false });
-  }
+  if (!code) return res.status(400).json({ success: false });
+
+  const codes = loadJSON(DEGREE2_FILE);
+  codes.push(code);
+  saveJSON(DEGREE2_FILE, codes);
+
+  res.status(201).json({ success: true });
 });
 
 app.delete("/api/degree2-codes/:index", (req, res) => {
@@ -120,7 +131,7 @@ app.delete("/api/degree2-codes/:index", (req, res) => {
   }
 });
 
-// Degree 2 Chat (REST API)
+// ✅ Degree 2 Chat REST API
 app.get("/api/degree2-chat", (req, res) => {
   const messages = loadJSON(DEGREE2_CHAT_FILE);
   res.json(messages);
@@ -128,23 +139,22 @@ app.get("/api/degree2-chat", (req, res) => {
 
 app.post("/api/degree2-chat", (req, res) => {
   const { name, text } = req.body;
-  if (text) {
-    const messages = loadJSON(DEGREE2_CHAT_FILE);
-    messages.push({
-      name: name || "Anonymous",
-      text,
-      time: new Date().toLocaleTimeString(),
-    });
-    saveJSON(DEGREE2_CHAT_FILE, messages);
-    res.status(201).json({ success: true });
-  } else {
-    res.status(400).json({ success: false });
-  }
+  if (!text) return res.status(400).json({ success: false });
+
+  const messages = loadJSON(DEGREE2_CHAT_FILE);
+  messages.push({
+    name: name || "Anonymous",
+    text,
+    time: new Date().toLocaleTimeString(),
+  });
+  saveJSON(DEGREE2_CHAT_FILE, messages);
+
+  res.status(201).json({ success: true });
 });
 
-/* -------------------------- 📡 Socket.IO Chat (Degree 2) -------------------------- */
+/* -------------------------- 📡 Socket.IO Chat -------------------------- */
 io.on("connection", (socket) => {
-  console.log("A user connected to Degree 2 chat");
+  console.log("📡 A user connected to Degree 2 chat");
 
   socket.on("loadChatHistory", () => {
     const messages = loadJSON(DEGREE2_CHAT_FILE);
@@ -160,7 +170,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected from Degree 2 chat");
+    console.log("❌ A user disconnected from Degree 2 chat");
   });
 });
 
